@@ -37,10 +37,16 @@ public class MovieService {
 		} // retorna todos os filmes se nenhum filme for especificado na url
 		return this.converteListaMovies(this.movieRepository.findAll());
 	}
-	
-	public ResponseEntity<MovieDto> cadastrar(MovieDto moviesDto, UriComponentsBuilder uriBuilder){
-		Movie movie = new Movie(moviesDto);
-		this.movieRepository.save(movie);
+	/*
+	 * UriComponentsBuilder auxilia na criação de uma URI. Uma URI é o endereço
+	 * e identificador que irá ser criado logo após a criação de um registro no banco.
+	 * Ou seja, ao se criar um novo registro, um novo endereço será criado para ele também, que
+	 * poderá ser acessado por ".../movies/{id}".
+	 */
+	public ResponseEntity<MovieDto> cadastrar(MovieDto movieDto, UriComponentsBuilder uriBuilder){
+		// aqui é criado uma nova instância de filme
+		Movie movie = new Movie(movieDto);
+		// aqui é passado como parâmetro o id (gerado automaticamente) de filme para a uri
 		URI uri = uriBuilder.path("/movies/{id}").buildAndExpand(movie.getId()).toUri();
 		movieRepository.save(movie);
 		
@@ -51,15 +57,15 @@ public class MovieService {
 				movie.getCategories()));
 	}
 	
-	public ResponseEntity<MovieDto> atualizar(Long id, MovieDto moviesDto){
+	public ResponseEntity<MovieDto> atualizar(Long id, MovieDto movieDto){
 		Optional<Movie> optional = this.movieRepository.findById(id);
 		
 		if(optional.isPresent()) {
 			Movie movie = optional.get();
-			movie.setId(moviesDto.id());
-			movie.setNome(moviesDto.nome());
-			movie.setSinopse(moviesDto.sinopse());
-			movie.setCategories(moviesDto.categories());
+			movie.setId(movieDto.id());
+			movie.setNome(movieDto.nome());
+			movie.setSinopse(movieDto.sinopse());
+			movie.setCategories(movieDto.categories());
 			this.movieRepository.save(movie);
 			return new ResponseEntity<MovieDto>(new MovieDto(
 					movie.getId(),
